@@ -1,9 +1,12 @@
 /*
- * Copyright (c) 2012 NVIDIA CORPORATION.  All rights reserved.
+ * include/linux/wake_gestures.h
+ *
+ * Copyright (c) 2013-15, Aaron Segaert <asegaert@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -13,26 +16,22 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
  */
 
-#include <linux/kernel.h>
-#include <linux/cpu.h>
-#include <linux/slab.h>
-#include <linux/cpuquiet.h>
-#include "cpuquiet.h"
+#ifndef _LINUX_WAKE_GESTURES_H
+#define _LINUX_WAKE_GESTURES_H
 
-DEFINE_MUTEX(cpuquiet_lock);
+#include <linux/input.h>
 
-static int __init cpuquiet_init(void)
-{
-	int ret;
-	
-	ret = cpuquiet_add_interface(cpu_subsys.dev_root);
-	if (ret)
-		return ret;
-		
-	return 0;
-}
+extern int s2w_switch;
+extern int s2w_switch_temp;
+extern bool s2w_switch_changed;
+extern int dt2w_switch;
+extern int dt2w_switch_temp;
+extern bool dt2w_switch_changed;
+extern bool gestures_enabled;
+bool scr_suspended(void);
+bool scr_suspended_ft(void);
+void set_vibrate(int value);
 
-core_initcall(cpuquiet_init);
+#endif	/* _LINUX_WAKE_GESTURES_H */
