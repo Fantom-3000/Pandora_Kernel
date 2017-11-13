@@ -160,6 +160,10 @@ void start_bandwidth_timer(struct hrtimer *period_timer, ktime_t period)
 DEFINE_MUTEX(sched_domains_mutex);
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
 
+#if defined(CONFIG_INTELLI_HOTPLUG) || defined(CONFIG_ALUCARD_HOTPLUG)
+DEFINE_PER_CPU_SHARED_ALIGNED(struct nr_stats_s, runqueue_stats);
+#endif
+
 static void update_rq_clock_task(struct rq *rq, s64 delta);
 
 void update_rq_clock(struct rq *rq)
@@ -2897,10 +2901,11 @@ ttwu_do_wakeup(struct rq *rq, struct task_struct *p, int wake_flags)
 		u64 delta = rq->clock - rq->idle_stamp;
 		u64 max = 2*sysctl_sched_migration_cost;
 
-		if (delta > max)
+		update_avg(&rq->avg_idle, delta);
+
+		if (rq->avg_idle > max)
 			rq->avg_idle = max;
-		else
-			update_avg(&rq->avg_idle, delta);
+
 		rq->idle_stamp = 0;
 	}
 #endif
@@ -3716,12 +3721,14 @@ unsigned long nr_iowait(void)
 	return sum;
 }
 
+#if defined(CONFIG_INTELLI_HOTPLUG) || defined(CONFIG_ALUCARD_HOTPLUG)
 unsigned long avg_nr_running(void)
 {
 	unsigned long i, sum = 0;
 	unsigned int seqcnt, ave_nr_running;
 
 	for_each_online_cpu(i) {
+		struct nr_stats_s *stats = &per_cpu(runqueue_stats, i);
 		struct rq *q = cpu_rq(i);
 
 		/*
@@ -3730,11 +3737,11 @@ unsigned long avg_nr_running(void)
 		 * the changes are happening right now, just read current value
 		 * directly.
 		 */
-		seqcnt = read_seqcount_begin(&q->ave_seqcnt);
+		seqcnt = read_seqcount_begin(&stats->ave_seqcnt);
 		ave_nr_running = do_avg_nr_running(q);
-		if (read_seqcount_retry(&q->ave_seqcnt, seqcnt)) {
-			read_seqcount_begin(&q->ave_seqcnt);
-			ave_nr_running = q->ave_nr_running;
+		if (read_seqcount_retry(&stats->ave_seqcnt, seqcnt)) {
+			read_seqcount_begin(&stats->ave_seqcnt);
+			ave_nr_running = stats->ave_nr_running;
 		}
 
 		sum += ave_nr_running;
@@ -3742,6 +3749,32 @@ unsigned long avg_nr_running(void)
 
 	return sum;
 }
+EXPORT_SYMBOL(avg_nr_running);
+
+unsigned long avg_cpu_nr_running(unsigned int cpu)
+{
+	unsigned int seqcnt, ave_nr_running;
+
+	struct nr_stats_s *stats = &per_cpu(runqueue_stats, cpu);
+	struct rq *q = cpu_rq(cpu);
+
+	/*
+	 * Update average to avoid reading stalled value if there were
+	 * no run-queue changes for a long time. On the other hand if
+	 * the changes are happening right now, just read current value
+	 * directly.
+	 */
+	seqcnt = read_seqcount_begin(&stats->ave_seqcnt);
+	ave_nr_running = do_avg_nr_running(q);
+	if (read_seqcount_retry(&stats->ave_seqcnt, seqcnt)) {
+		read_seqcount_begin(&stats->ave_seqcnt);
+		ave_nr_running = stats->ave_nr_running;
+	}
+
+	return ave_nr_running;
+}
+EXPORT_SYMBOL(avg_cpu_nr_running);
+#endif
 
 unsigned long nr_iowait_cpu(int cpu)
 {
