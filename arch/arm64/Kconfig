@@ -639,6 +639,22 @@ source "fs/Kconfig"
 
 source "arch/arm64/kvm/Kconfig"
 
+source "arch/arm/hotplug/ALUCARD/Kconfig"
+
+source "arch/arm/hotplug/BRICKED/Kconfig"
+
+source "arch/arm/hotplug/INTELLIPLUG/Kconfig"
+
+source "arch/arm/hotplug/MSMHOTPLUG/Kconfig"
+
+source "arch/arm/hotplug/THUNDERPLUG/Kconfig"
+
+source "arch/arm/hotplug/ZENDECISION/Kconfig"
+
+source "arch/arm/hotplug/AUTOSMP/Kconfig"
+
+source "arch/arm/hotplug/MAKO/Kconfig"
+
 source "arch/arm64/Kconfig.debug"
 
 source "security/Kconfig"
