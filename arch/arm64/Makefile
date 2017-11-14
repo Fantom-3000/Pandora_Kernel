@@ -52,7 +52,6 @@ libs-y		+= $(LIBGCC)
 core-$(CONFIG_INTELLI_PLUG)	+= arch/arm/hotplug/INTELLIPLUG/
 core-$(CONFIG_ALUCARD_HOTPLUG)	+= arch/arm/hotplug/ALUCARD/
 core-$(CONFIG_BRICKED_HOTPLUG)	+= arch/arm/hotplug/BRICKED/
-core-$(CONFIG_MSM_HOTPLUG)	+= arch/arm/hotplug/MSMHOTPLUG/
 core-$(CONFIG_THUNDERPLUG_CONTROL)	+= arch/arm/hotplug/THUNDERPLUG/
 core-$(CONFIG_MAKO_HOTPLUG)	+= arch/arm/hotplug/MAKO/
 core-$(CONFIG_ZEN_DECISION)	+= arch/arm/hotplug/ZENDECISION/

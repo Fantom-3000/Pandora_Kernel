@@ -645,8 +645,6 @@ source "arch/arm/hotplug/BRICKED/Kconfig"
 
 source "arch/arm/hotplug/INTELLIPLUG/Kconfig"
 
-source "arch/arm/hotplug/MSMHOTPLUG/Kconfig"
-
 source "arch/arm/hotplug/THUNDERPLUG/Kconfig"
 
 source "arch/arm/hotplug/ZENDECISION/Kconfig"
